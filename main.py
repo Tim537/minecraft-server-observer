@@ -38,6 +38,12 @@ async def update_status():
             # time.sleep(3)
             # await message.delete()
 
+        if not status["online"] and server["cache_online"]:
+            channel = discord_client.get_channel(discord_channel)                
+            message = await channel.send(f"<@309746842894204929>\n {server['nickname']} ist jetzt offline!")
+            # time.sleep(3)
+            # await message.delete()
+
         if status["online"]:
             server["cache_online"] = True
         else:
