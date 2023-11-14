@@ -1,6 +1,7 @@
-from discord_secrets import get_mcalj_discord_message_id
-from discord_secrets import get_mcalj_discord_channel_id
-from discord_secrets import get_mcalj_discord_token
+from script_secrets import get_mcalj_discord_message_id
+from script_secrets import get_mcalj_discord_channel_id
+from script_secrets import get_mcalj_discord_token
+from script_secrets import get_mc_server_list
 from mcstatus import JavaServer as MinecraftServer
 from discord.ext import commands
 from discord.ext import tasks
@@ -10,14 +11,7 @@ import time
 discord_token = get_mcalj_discord_token()
 discord_message = get_mcalj_discord_message_id()
 discord_channel = get_mcalj_discord_channel_id()
-
-minecraft_servers = [
-    {
-        "ip": "93.235.34.63",
-        "nickname": "Aljoschas Server",
-        "cache_online": False,
-    }
-]
+minecraft_servers = get_mc_server_list()
 
 discord_client = commands.Bot(command_prefix="MCALJ!", intents=discord.Intents.all(), help_command=None)
 
