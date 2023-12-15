@@ -5,8 +5,18 @@ from script_secrets import get_mc_server_list
 from mcstatus import JavaServer as MinecraftServer
 from discord.ext import commands
 from discord.ext import tasks
+from lxml import etree
+import requests
 import discord
 import time
+
+headers = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Encoding': 'gzip, deflate',
+    'Connection': 'keep-alive',
+    'Cookie': '',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0'
+}
 
 discord_token = get_mcalj_discord_token()
 discord_message = get_mcalj_discord_message_id()
@@ -15,9 +25,44 @@ minecraft_servers = get_mc_server_list()
 
 discord_client = commands.Bot(command_prefix="MCALJ!", intents=discord.Intents.all(), help_command=None)
 
+def get_html(url):
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        headers['Cookie'] = response.headers['Set-Cookie'].split(";")[0]
+        return response.text
+    except requests.exceptions.HTTPError as e:
+        print(e)
+        return None
+    
+def is_available(url):
+    html_raw = get_html(url)
+    if html_raw is None:
+        print("Error: No html for " + url)
+
+    if "nicht verfügbar" in html_raw:
+        return False
+    
+    return True
+
 @discord_client.event
 async def on_ready():
-    update_status.start()
+    check_offer.start()
+    update_status.start()  
+
+@tasks.loop(seconds=5)
+async def check_offer():
+    url = "https://taschengelddieb.de/823473224876-Try-It-Bot-IF-YOU-CAN"
+
+    if is_available(url):
+        notifications = [
+            309746842894204929,
+            277124058179567616
+        ]
+
+        for user in notifications:
+            discord_user = discord_client.get_user(user)
+            await discord_user.send("Das [Angebot](https://taschengelddieb.de/lego-avatar-75576-skimwing-abenteuer) ist verfügbar!")
 
 @tasks.loop(seconds=5*60)
 async def update_status():
